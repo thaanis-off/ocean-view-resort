@@ -170,7 +170,7 @@
                     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-md">
                         <div class="p-6 border-b border-gray-800 flex items-center justify-between">
                             <h3 class="text-sm font-bold text-primary-400 uppercase tracking-wider">Incidental Charges</h3>
-                            <a href="${pageContext.request.contextPath}/extraCharge?action=new&reservationId=${reservation.id}" 
+                            <a href="${pageContext.request.contextPath}/extracharge?action=new&reservationId=${reservation.id}" 
                                class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
                                 + Add Charge
                             </a>
@@ -197,7 +197,7 @@
                                                     <td class="px-6 py-4">${charge.description}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-primary-400 font-medium">$<fmt:formatNumber value="${charge.amount}" pattern="#,##0.00"/></td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                                                        <button onclick="if(confirm('Delete this charge?')) window.location='${pageContext.request.contextPath}/extraCharge?action=delete&id=${charge.id}&reservationId=${reservation.id}'" 
+                                                        <button onclick="if(confirm('Delete this charge?')) window.location='${pageContext.request.contextPath}/extracharge?action=delete&id=${charge.id}&reservationId=${reservation.id}'" 
                                                                 class="text-red-500 hover:text-red-400 transition-colors font-medium">✕</button>
                                                     </td>
                                                 </tr>
@@ -288,7 +288,6 @@
     </div>
 
     <script>
-        // Custom iOS/Mac Style Toast Logic
         let toastTimeout;
         
         function showToast(title) {
@@ -346,10 +345,9 @@
             <c:if test="${param.success == 'cancelled'}">showToast("Reservation cancelled successfully");</c:if>
             <c:if test="${param.success == 'confirmed'}">showToast("Reservation confirmed successfully");</c:if>
             
-         // Extra Charges specific (ADDED THESE LINES)
-            <c:if test="${param.success == 'charge_added'}">showToast("Incidental charge added to tab");</c:if>
-            <c:if test="${param.success == 'charge_updated'}">showToast("Incidental charge updated");</c:if>
-            <c:if test="${param.success == 'charge_deleted'}">showToast("Incidental charge removed from tab");</c:if>
+            <c:if test="${param.success == 'charge_added'}">showToast("Extra charges addedd successfully");</c:if>
+            <c:if test="${param.success == 'charge_updated'}">showToast("Extra charges updated successfully");</c:if>
+            <c:if test="${param.success == 'charge_deleted'}">showToast("Extra charges deleted successfully");</c:if>
         });
     </script>
 </body>

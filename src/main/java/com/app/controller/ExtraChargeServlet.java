@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-@WebServlet("/extraCharge")
+@WebServlet("/extracharge")
 public class ExtraChargeServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     
@@ -79,7 +79,7 @@ public class ExtraChargeServlet extends HttpServlet {
         request.setAttribute("reservation", reservationService.getReservationById(reservationId));
         
         // Forward to the new JSP file we are going to create next
-        request.getRequestDispatcher("/WEB-INF/views/app-views/extracharge-form.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/app-views/extracharge.jsp").forward(request, response);
     }
 
     // ─── SAVE TO DATABASE ────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ public class ExtraChargeServlet extends HttpServlet {
             // Send them straight back to the Reservation profile page so they can see the new charge!
             response.sendRedirect(request.getContextPath() + "/reservation?action=view&id=" + reservationId + "&success=charge_added");
         } else {
-            response.sendRedirect(request.getContextPath() + "/extraCharge?action=new&reservationId=" + reservationId + "&error=failed");
+            response.sendRedirect(request.getContextPath() + "/extracharge?action=new&reservationId=" + reservationId + "&error=failed");
         }
     }
 

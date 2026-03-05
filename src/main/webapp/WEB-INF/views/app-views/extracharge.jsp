@@ -118,7 +118,7 @@
                     </c:if>
 
                     <div class="bg-gray-900 border border-gray-800 rounded-xl shadow-lg p-8">
-                        <form action="${pageContext.request.contextPath}/extraCharge" method="post" class="space-y-8">
+                        <form action="${pageContext.request.contextPath}/extracharge" method="post" class="space-y-8">
                             <input type="hidden" name="action" value="${charge != null ? 'update' : 'create'}">
                             <c:if test="${charge != null}">
                                 <input type="hidden" name="id" value="${charge.id}">
