@@ -12,8 +12,8 @@ public class RoomDAO {
 
     public boolean addRoom(Room room) throws SQLException {
         String sql = "INSERT INTO rooms (room_number, room_type_id, floor_number, " +
-                     "view_type, status, price_per_night, is_active) " +
-                     "VALUES (?,?,?,?,?,?,?)";
+                     "view_type, status, is_active) " +
+                     "VALUES (?,?,?,?,?,?)";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -23,8 +23,7 @@ public class RoomDAO {
             ps.setInt(3, room.getFloorNumber());
             ps.setString(4, room.getViewType());
             ps.setString(5, room.getStatus());
-            ps.setBigDecimal(6, room.getPricePerNight());
-            ps.setBoolean(7, room.isActive());
+            ps.setBoolean(6, room.isActive());
 
             return ps.executeUpdate() > 0;
         }
@@ -176,7 +175,7 @@ public class RoomDAO {
 
     public boolean updateRoom(Room room) throws SQLException {
         String sql = "UPDATE rooms SET room_number=?, room_type_id=?, floor_number=?, " +
-                     "view_type=?, status=?, price_per_night=?, is_active=? WHERE id=?";
+                     "view_type=?, status=?, is_active=? WHERE id=?";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -186,9 +185,8 @@ public class RoomDAO {
             ps.setInt(3, room.getFloorNumber());
             ps.setString(4, room.getViewType());
             ps.setString(5, room.getStatus());
-            ps.setBigDecimal(6, room.getPricePerNight());
-            ps.setBoolean(7, room.isActive());
-            ps.setInt(8, room.getId());
+            ps.setBoolean(6, room.isActive());
+            ps.setInt(7, room.getId());
 
             return ps.executeUpdate() > 0;
         }
@@ -284,7 +282,6 @@ public class RoomDAO {
         room.setFloorNumber(rs.getInt("floor_number"));
         room.setViewType(rs.getString("view_type"));
         room.setStatus(rs.getString("status"));
-        room.setPricePerNight(rs.getBigDecimal("price_per_night"));
         room.setActive(rs.getBoolean("is_active"));
         return room;
     }

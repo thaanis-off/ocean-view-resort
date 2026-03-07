@@ -382,17 +382,57 @@ public class ReservationDAO {
 
     // ─── DELETE ──────────────────────────────────────────────────────────────
 
+ // ─── DELETE RESERVATION (with CASCADE delete of related records) ─────────
     public boolean deleteReservation(int id) throws SQLException {
-        String sql = "DELETE FROM reservations WHERE id = ?";
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+        Connection con = null;
+        try {
+            con = DBConnection.getConnection();
+            con.setAutoCommit(false); // Start transaction
+            
+            // Step 1: Delete related extra_charges first
+            String deleteExtraCharges = "DELETE FROM extra_charges WHERE reservation_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(deleteExtraCharges)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            
+            // Step 2: Delete related payments
+            String deletePayments = "DELETE FROM payments WHERE reservation_id = ?";
+            try (PreparedStatement ps = con.prepareStatement(deletePayments)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            
+            // Step 3: Now delete the reservation
+            String deleteReservation = "DELETE FROM reservations WHERE id = ?";
+            try (PreparedStatement ps = con.prepareStatement(deleteReservation)) {
+                ps.setInt(1, id);
+                int result = ps.executeUpdate();
+                
+                con.commit(); // Commit transaction
+                return result > 0;
+            }
+            
+        } catch (SQLException e) {
+            if (con != null) {
+                try {
+                    con.rollback(); // Rollback on error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            throw e;
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true); // Reset auto-commit
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-
     // ─── GET RESERVATION COUNT BY STATUS ─────────────────────────────────────
 
     public int getReservationCountByStatus(String status) throws SQLException {

@@ -81,8 +81,8 @@ public class DashboardServlet extends HttpServlet {
             // Staff Statistics
            // stats.put("totalStaff", staffService.getAllStaffs().size());
             
-            //request.setAttribute("stats", stats);
-            request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(request, response);
+            request.setAttribute("stats", stats);
+            request.getRequestDispatcher("/WEB-INF/dashboard.jsp").forward(request, response);
             
         } catch (SQLException e) {
             throw new ServletException("Database error: " + e.getMessage(), e);

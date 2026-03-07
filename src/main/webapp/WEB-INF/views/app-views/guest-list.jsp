@@ -132,7 +132,7 @@
                                             <th class="px-6 py-4">Full Name</th>
                                             <th class="px-6 py-4">Contact Info</th>
                                             <th class="px-6 py-4">Type</th>
-                                            <th class="px-6 py-4 text-center">Stays</th>
+                                          
                                             <th class="px-6 py-4">Status</th>
                                             <th class="px-6 py-4 text-right">Actions</th>
                                         </tr>
@@ -163,7 +163,7 @@
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-300">${guest.totalStays}</td>
+                                                
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <c:choose>
                                                         <c:when test="${guest.blacklisted}">

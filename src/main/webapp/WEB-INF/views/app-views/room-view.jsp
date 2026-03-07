@@ -86,9 +86,7 @@
                                     <span class="text-white/40">•</span>
                                     <span>Floor ${room.floorNumber}</span>
                                 </div>
-                                <div class="mt-3 text-xl font-semibold text-white">
-                                    $<fmt:formatNumber value="${room.pricePerNight}" pattern="#,##0.00"/> <span class="text-sm font-normal text-primary-200">/ night</span>
-                                </div>
+                                
                             </div>
                         </div>
 
@@ -119,10 +117,7 @@
                             <div class="text-3xl font-bold text-primary-400">${room.floorNumber}</div>
                             <div class="text-xs text-gray-400 font-medium uppercase tracking-wider mt-2">Floor</div>
                         </div>
-                        <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-md">
-                            <div class="text-3xl font-bold text-primary-400">$<fmt:formatNumber value="${room.pricePerNight}" pattern="#,##0"/></div>
-                            <div class="text-xs text-gray-400 font-medium uppercase tracking-wider mt-2">Price Per Night</div>
-                        </div>
+                       
                         <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center shadow-md">
                             <div class="text-3xl font-bold mt-1 ${room.active ? 'text-green-500' : 'text-red-500'}">
                                 ${room.active ? '✓ Yes' : '✗ No'}
@@ -156,10 +151,7 @@
                                     <label class="block text-xs font-semibold text-gray-500 uppercase">Current Status</label>
                                     <div class="text-sm text-gray-200 mt-1">${room.status}</div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-500 uppercase">Price Per Night</label>
-                                    <div class="text-sm font-medium text-white mt-1">$<fmt:formatNumber value="${room.pricePerNight}" pattern="#,##0.00"/></div>
-                                </div>
+                                
                             </div>
                         </div>
 

@@ -183,16 +183,16 @@ public class GuestDAO {
 
     // ─── INCREMENT STAY COUNT ────────────────────────────────────────────────
 
-    public boolean incrementTotalStays(int id) throws SQLException {
-        String sql = "UPDATE guests SET total_stays = total_stays + 1 WHERE id = ?";
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-        }
-    }
+//    public boolean incrementTotalStays(int id) throws SQLException {
+//        String sql = "UPDATE guests SET total_stays = total_stays + 1 WHERE id = ?";
+//
+//        try (Connection con = DBConnection.getConnection();
+//             PreparedStatement ps = con.prepareStatement(sql)) {
+//
+//            ps.setInt(1, id);
+//            return ps.executeUpdate() > 0;
+//        }
+//    }
 
     // ─── CHECK IF EMAIL EXISTS ───────────────────────────────────────────────
 
@@ -282,7 +282,6 @@ public class GuestDAO {
         g.setDateOfBirth(dob != null ? dob.toLocalDate() : null);
 
         g.setGuestType(rs.getString("guest_type"));
-        g.setTotalStays(rs.getInt("total_stays"));
         g.setActive(rs.getBoolean("is_active"));
         g.setVip(rs.getBoolean("is_vip"));
         g.setBlacklisted(rs.getBoolean("blacklisted"));

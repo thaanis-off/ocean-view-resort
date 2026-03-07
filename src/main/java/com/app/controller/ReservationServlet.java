@@ -139,22 +139,23 @@ public class ReservationServlet extends HttpServlet {
 
     private void createReservation(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, ServletException, IOException {
-        Reservation reservation = buildReservationFromRequest(request);
-        
-        BigDecimal calculatedTotal = reservationService.calculateReservationTotal(
-                reservation.getRoomId(), 
-                reservation.getCheckInDate(), 
-                reservation.getCheckOutDate()
-        );
-        reservation.setTotalAmount(calculatedTotal);
-        
-        boolean success = reservationService.addReservation(reservation);
-        if (success) {
+        try {
+            Reservation reservation = buildReservationFromRequest(request);
+            
+            BigDecimal calculatedTotal = reservationService.calculateReservationTotal(
+                    reservation.getRoomId(),
+                    reservation.getCheckInDate(),
+                    reservation.getCheckOutDate()
+            );
+            reservation.setTotalAmount(calculatedTotal);
+            
+            reservationService.addReservation(reservation);
             response.sendRedirect(request.getContextPath() + "/reservation?action=list&success=added");
-        } else {
+
+        } catch (IllegalArgumentException e) {
             request.setAttribute("guests", guestService.getAllGuests());
             request.setAttribute("rooms", roomService.getAvailableRooms());
-            request.setAttribute("errorMessage", "Room not available for selected dates.");
+            request.setAttribute("errorMessage", e.getMessage()); // exact reason shown
             request.getRequestDispatcher("/WEB-INF/views/app-views/reservation.jsp").forward(request, response);
         }
     }

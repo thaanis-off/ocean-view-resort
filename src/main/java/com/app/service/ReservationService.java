@@ -24,12 +24,26 @@ public class ReservationService {
 
     // ─── ADD new reservation ──────────────────────────────────────────────────
     public boolean addReservation(Reservation reservation) throws SQLException {
+    	 // Validation 1: Check occupancy limit
+        Room room = roomDAO.getRoomById(reservation.getRoomId());
+        RoomType roomType = roomTypeDAO.getRoomTypeById(room.getRoomTypeId());
+        
+        int totalGuests = reservation.getNumAdults() + reservation.getNumChildren();
+        if (totalGuests > roomType.getMaxOccupancy()) {
+            throw new IllegalArgumentException(
+                "Total guests (" + totalGuests + ") exceeds max occupancy (" 
+                + roomType.getMaxOccupancy() + ") for this room type."
+            );
+        }
+        
         // Business rule: Check if room is available for the dates
         if (!reservationDAO.isRoomAvailable(
                 reservation.getRoomId(),
                 reservation.getCheckInDate(),
                 reservation.getCheckOutDate())) {
-            return false; // Room not available
+        	throw new IllegalArgumentException(
+                    "Room is not available for the selected dates."
+                );
         }
         
         return reservationDAO.addReservation(reservation);

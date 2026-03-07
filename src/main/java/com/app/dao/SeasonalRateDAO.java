@@ -6,6 +6,7 @@ import com.app.util.DBConnection;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,6 +118,7 @@ public class SeasonalRateDAO {
         return list;
     }
     
+   
  // ─── SEARCH RATES ────────────────────────────────────────────────────────
     public List<SeasonalRate> searchRates(String keyword) throws SQLException {
         List<SeasonalRate> list = new ArrayList<>();
