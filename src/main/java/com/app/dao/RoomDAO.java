@@ -35,7 +35,7 @@ public class RoomDAO {
         String sql = "SELECT r.*, rt.type_name as room_type_name " +
                      "FROM rooms r " +
                      "LEFT JOIN room_types rt ON r.room_type_id = rt.id " +
-                     "WHERE r.id = ?";
+                     "WHERE r.id = ? AND is_active = 1";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

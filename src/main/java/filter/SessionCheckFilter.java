@@ -21,10 +21,7 @@ public class SessionCheckFilter implements Filter {
         // Public pages - no login required
         boolean isPublicPage = uri.endsWith("/login") || 
                               uri.endsWith("/register") ||
-                              uri.endsWith("/logout") ||
-                              uri.contains("/css/") ||
-                              uri.contains("/js/") ||
-                              uri.contains("/images/");
+                              uri.endsWith("/logout");
         
         if (isPublicPage) {
             chain.doFilter(request, response);
