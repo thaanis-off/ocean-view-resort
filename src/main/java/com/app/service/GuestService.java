@@ -76,16 +76,16 @@ public class GuestService {
         return guestDAO.toggleBlacklist(id, blacklisted);
     }
 
-    // ─── INCREMENT stay count ─────────────────────────────────────────────────
-    public boolean incrementTotalStays(int id) throws SQLException {
-        // Auto promote to VIP after 5 stays
-        Guest guest = guestDAO.getGuestById(id);
-        if (guest != null && guest.isEligibleForVip() && !guest.isVip()) {
-            guest.setVip(true);
-            guestDAO.updateGuest(guest);
-        }
-        return guestDAO.incrementTotalStays(id);
-    }
+//    // ─── INCREMENT stay count ─────────────────────────────────────────────────
+//    public boolean incrementTotalStays(int id) throws SQLException {
+//        // Auto promote to VIP after 5 stays
+//        Guest guest = guestDAO.getGuestById(id);
+//        if (guest != null && guest.isEligibleForVip() && !guest.isVip()) {
+//            guest.setVip(true);
+//            guestDAO.updateGuest(guest);
+//        }
+//        return guestDAO.incrementTotalStays(id);
+//    }
 
     // ─── CHECK email exists ───────────────────────────────────────────────────
     public boolean emailExists(String email) throws SQLException {

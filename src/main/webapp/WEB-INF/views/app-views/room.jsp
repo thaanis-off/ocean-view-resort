@@ -122,15 +122,10 @@
                             </div>
 
                             <div>
-                                <h3 class="text-lg font-semibold text-white border-b border-gray-800 pb-3 mb-6">Pricing & Status</h3>
+                                <h3 class="text-lg font-semibold text-white border-b border-gray-800  mb-6">Status</h3>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-400 mb-2">Price Per Night ($) <span class="text-red-500">*</span></label>
-                                        <input type="number" name="pricePerNight" step="0.01" min="0" value="${room != null ? room.pricePerNight : param.pricePerNight}" placeholder="e.g. 150.00" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
-                                        <p class="text-xs text-gray-500 mt-1.5">Nightly rate for this room</p>
-                                    </div>
+                                <div class="grid grid-cols-1 md:grid-cols-1  mb-6">
+                                    
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Status <span class="text-red-500">*</span></label>
                                         <select name="status" required class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors appearance-none">

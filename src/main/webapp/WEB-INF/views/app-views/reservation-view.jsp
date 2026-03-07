@@ -170,10 +170,20 @@
                     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-md">
                         <div class="p-6 border-b border-gray-800 flex items-center justify-between">
                             <h3 class="text-sm font-bold text-primary-400 uppercase tracking-wider">Incidental Charges</h3>
-                            <a href="${pageContext.request.contextPath}/extracharge?action=new&reservationId=${reservation.id}" 
-                               class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
-                                + Add Charge
-                            </a>
+                            <c:choose>
+							    <c:when test="${reservation.status == 'CheckedIn'}">
+							        <a href="${pageContext.request.contextPath}/extracharge?action=new&reservationId=${reservation.id}"
+							           class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs font-medium rounded-lg transition-colors shadow-sm">
+							            + Add Charge
+							        </a>
+							    </c:when>
+							    <c:otherwise>
+							        <button disabled 
+							                class="inline-flex items-center px-4 py-2 bg-gray-700 text-gray-500 text-xs font-medium rounded-lg cursor-not-allowed opacity-50">
+							            + Add Charge
+							        </button>
+							    </c:otherwise>
+							</c:choose>
                         </div>
                         
                         <c:choose>
@@ -258,7 +268,15 @@
                         <a href="${pageContext.request.contextPath}/reservation?action=list" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg border border-gray-700 transition-colors mr-auto">
                             ← Back to List
                         </a>
-
+						
+						 <a href="${pageContext.request.contextPath}/bill?action=view&reservationId=${reservation.id}"
+						   class="inline-flex items-center px-5 py-2.5 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 border border-green-500/30 text-white font-medium rounded-lg shadow-md transition-all duration-300">
+						    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+						    </svg>
+						    View Bill
+						</a>
+						
                         <a href="${pageContext.request.contextPath}/reservation?action=edit&id=${reservation.id}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-br from-primary-600 to-gray-900 hover:from-primary-500 hover:to-gray-800 border border-primary-500/30 text-white font-medium rounded-lg shadow-md transition-all duration-300">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                             Edit
@@ -268,6 +286,8 @@
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             Delete
                         </button>
+                        
+                       
                     </div>
 
                 </div>

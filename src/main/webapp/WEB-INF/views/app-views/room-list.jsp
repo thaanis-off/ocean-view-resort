@@ -152,7 +152,7 @@
                                             <th class="px-6 py-4">Type</th>
                                             <th class="px-6 py-4">Floor</th>
                                             <th class="px-6 py-4">View</th>
-                                            <th class="px-6 py-4">Price/Night</th>
+                                           
                                             <th class="px-6 py-4">Status</th>
                                             <th class="px-6 py-4 text-right">Actions</th>
                                         </tr>
@@ -166,11 +166,7 @@
                                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">Floor ${room.floorNumber}</span>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${room.viewType}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-semibold bg-primary-500/10 text-primary-400 border border-primary-500/20">
-                                                        $<fmt:formatNumber value="${room.pricePerNight}" pattern="#,##0.00"/>
-                                                    </span>
-                                                </td>
+                                                
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <c:choose>
                                                         <c:when test="${room.status == 'Available'}">

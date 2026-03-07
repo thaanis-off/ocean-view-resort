@@ -137,7 +137,7 @@
                             <div>
                                 <h3 class="text-lg font-semibold text-white border-b border-gray-800 pb-3 mb-6">Booking Details</h3>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-1 mb-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Status <span class="text-red-500">*</span></label>
                                         <select name="status" required class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors appearance-none">
@@ -148,12 +148,12 @@
                                             <option value="Cancelled" ${(reservation != null && reservation.status == 'Cancelled') || param.status == 'Cancelled' ? 'selected' : ''} class="bg-gray-900">Cancelled</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-400 mb-2">Total Amount (LKR) <span class="text-red-500">*</span></label>
-                                        <input type="number" name="totalAmount" step="0.01" min="0" value="${reservation != null ? reservation.totalAmount : param.totalAmount != null ? param.totalAmount : '0.00'}" placeholder="0.00" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
-                                        <p class="text-xs text-gray-500 mt-1.5 text-primary-400/80">System will automatically recalculate this based on seasonal rates upon saving.</p>
-                                    </div>
+                                  
+                                       
+                                        <input type="hidden" name="totalAmount" step="0.01" min="0" value="${reservation != null ? reservation.totalAmount : param.totalAmount != null ? param.totalAmount : '0.00'}" placeholder="0.00" required
+                                            class="">
+                                       
+                                   
                                 </div>
 
                                 <div class="mb-6">
