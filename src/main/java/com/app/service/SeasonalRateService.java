@@ -4,6 +4,7 @@ import com.app.dao.SeasonalRateDAO;
 import com.app.model.Room;
 import com.app.model.SeasonalRate;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class SeasonalRateService {
@@ -15,6 +16,9 @@ public class SeasonalRateService {
         return seasonalRateDAO.addRate(rate);
     }
 
+    public boolean hasOverlappingRates(int roomTypeId, LocalDate startDate, LocalDate endDate, Integer excludeRateId) throws SQLException {
+        return seasonalRateDAO.hasOverlappingRates(roomTypeId, startDate, endDate, excludeRateId);
+    }
     // ─── GET seasonal rate by ID ──────────────────────────────────────────────
     public SeasonalRate getRateById(int id) throws SQLException {
         return seasonalRateDAO.getRateById(id);

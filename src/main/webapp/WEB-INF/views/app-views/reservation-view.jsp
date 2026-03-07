@@ -26,6 +26,10 @@
     </script>
 </head>
 <body class="bg-gray-950 text-gray-100 relative">
+
+<c:if test="${empty sessionScope.loggedInStaff}">
+    <c:redirect url="/login?status=sessionExpired"/>
+</c:if>
     <div class="flex h-screen overflow-hidden">
         
         <jsp:include page="/WEB-INF/includes/sidebar.jsp">

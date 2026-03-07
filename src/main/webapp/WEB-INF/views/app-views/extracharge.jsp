@@ -26,10 +26,11 @@
 </head>
 <body class="bg-gray-950 text-gray-100 relative">
 
-    <%-- Protect page — if not logged in, redirect to login --%>
-    <c:if test="${empty sessionScope.loggedInStaff}">
-        <c:redirect url="/login?status=sessionExpired"/>
-    </c:if>
+<c:if test="${empty sessionScope.loggedInStaff}">
+    <c:redirect url="/login?status=sessionExpired"/>
+</c:if>
+
+   
 
     <div class="flex h-screen overflow-hidden">
         

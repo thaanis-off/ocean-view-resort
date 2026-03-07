@@ -78,6 +78,17 @@
                         </div>
                     </div>
 
+					<c:if test="${not empty errorMessage}">
+					    <div class="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-start space-x-3">
+					        <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+					        </svg>
+					        <div>
+					            <p class="text-sm text-red-300 font-medium">Validation Error</p>
+					            <p class="text-xs text-red-400/80 mt-1">${errorMessage}</p>
+					        </div>
+					    </div>
+					</c:if>
                     <!-- Form -->
                     <form action="${pageContext.request.contextPath}/seasonalRates" method="post" class="bg-gray-900 border border-gray-800 rounded-xl p-6">
                         <input type="hidden" name="action" value="${rate != null ? 'update' : 'create'}">
@@ -137,33 +148,43 @@
                             <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-gray-800">Date Range</h3>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Start Date -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">
-                                        Start Date <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="date" name="startDate" value="${rate != null ? rate.startDate : ''}" 
-                                        required
-                                        class="w-full bg-gray-950 border border-gray-700 text-gray-300 rounded-lg px-4 py-2.5 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none">
-                                </div>
-
-                                <!-- End Date -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">
-                                        End Date <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="date" name="endDate" value="${rate != null ? rate.endDate : ''}" 
-                                        required
-                                        class="w-full bg-gray-950 border border-gray-700 text-gray-300 rounded-lg px-4 py-2.5 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none">
-                                </div>
-                            </div>
+							    <div>
+							        <label class="block text-sm font-medium text-gray-300 mb-2">
+							            Start Date <span class="text-red-500">*</span>
+							        </label>
+							        <input type="date" 
+							               name="startDate" 
+							               id="startDate"
+							               value="${rate != null ? rate.startDate : ''}"
+							               required
+							               min="${currentDate}"
+							               onchange="validateStartDate()"
+							               class="w-full bg-gray-950 border border-gray-700 text-gray-300 rounded-lg px-4 py-2.5 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none [color-scheme:dark]">
+							        <p id="startDateError" class="text-red-400 text-xs mt-1 hidden"></p>
+							    </div>
+							
+							    <div>
+							        <label class="block text-sm font-medium text-gray-300 mb-2">
+							            End Date <span class="text-red-500">*</span>
+							        </label>
+							        <input type="date" 
+							               name="endDate" 
+							               id="endDate"
+							               value="${rate != null ? rate.endDate : ''}"
+							               required
+							               min="${currentDate}"
+							               onchange="validateEndDate()"
+							               class="w-full bg-gray-950 border border-gray-700 text-gray-300 rounded-lg px-4 py-2.5 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none [color-scheme:dark]">
+							        <p id="endDateError" class="text-red-400 text-xs mt-1 hidden"></p>
+							    </div>
+							</div>
                         </div>
 
                         <!-- Pricing -->
                         <div class="mb-8">
                             <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-gray-800">Pricing</h3>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-1">
                                 <!-- Special Price -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-300 mb-2">
@@ -181,19 +202,7 @@
                                 </div>
 
                                 <!-- Discount Percentage -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">
-                                        Discount Percentage
-                                    </label>
-                                    <div class="relative">
-                                        <input type="number" step="0.01" name="discountPct" 
-                                            value="${rate != null ? rate.discountPct : '0.00'}" 
-                                            placeholder="0.00"
-                                            class="w-full bg-gray-950 border border-gray-700 text-gray-300 rounded-lg px-4 py-2.5 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none">
-                                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">%</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Optional: For promotional purposes only</p>
-                                </div>
+                              
                             </div>
                         </div>
 
@@ -216,5 +225,100 @@
             </main>
         </div>
     </div>
+    
+    <script>
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    
+    document.getElementById('startDate').min = todayString;
+    document.getElementById('endDate').min = todayString;
+
+    function validateStartDate() {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const startDateError = document.getElementById('startDateError');
+        
+        const startDate = new Date(startDateInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        startDateError.classList.add('hidden');
+        startDateInput.classList.remove('border-red-500');
+        
+        if (startDate < today) {
+            startDateError.textContent = 'Start date cannot be in the past';
+            startDateError.classList.remove('hidden');
+            startDateInput.classList.add('border-red-500');
+            startDateInput.value = '';
+            return false;
+        }
+        
+        if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            if (endDateInput.value) {
+                validateEndDate();
+            }
+        }
+        
+        return true;
+    }
+
+    function validateEndDate() {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const endDateError = document.getElementById('endDateError');
+        
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        endDateError.classList.add('hidden');
+        endDateInput.classList.remove('border-red-500');
+        
+        if (endDate < today) {
+            endDateError.textContent = 'End date cannot be in the past';
+            endDateError.classList.remove('hidden');
+            endDateInput.classList.add('border-red-500');
+            endDateInput.value = '';
+            return false;
+        }
+        
+        if (startDateInput.value && endDate < startDate) {
+            endDateError.textContent = 'End date must be on or after start date';
+            endDateError.classList.remove('hidden');
+            endDateInput.classList.add('border-red-500');
+            endDateInput.value = '';
+            return false;
+        }
+        
+        if (startDateInput.value) {
+            const daysDiff = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+            if (daysDiff > 365) {
+                endDateError.textContent = 'Seasonal rate cannot exceed 365 days';
+                endDateError.classList.remove('hidden');
+                endDateInput.classList.add('border-red-500');
+                endDateInput.value = '';
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validateStartDate() || !validateEndDate()) {
+                    e.preventDefault();
+                    alert('Please fix the date validation errors');
+                    return false;
+                }
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

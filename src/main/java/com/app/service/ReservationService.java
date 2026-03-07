@@ -222,36 +222,27 @@ public class ReservationService {
         if (roomType == null) return BigDecimal.ZERO;
         
         BigDecimal basePrice = roomType.getBasePrice(); 
-
+        
         // 2. Fetch all ACTIVE seasonal rates for this Room Type
         List<SeasonalRate> activeRates = seasonalRateDAO.getActiveRatesForRoomType(roomType.getId());
-
+        
         BigDecimal grandTotal = BigDecimal.ZERO;
         LocalDate currentDate = checkInDate;
-
+        
         // 3. Loop day-by-day until the checkout date (exclusive)
         while (currentDate.isBefore(checkOutDate)) {
             
             // Start by assuming standard price for tonight
             BigDecimal priceForTonight = basePrice; 
-
+            
             // Check if tonight falls into any active seasonal rate
             for (SeasonalRate rate : activeRates) {
-                boolean isAfterOrOnStart = currentDate.isEqual(rate.getStartDate()) || currentDate.isAfter(rate.getStartDate());
-                boolean isBeforeOrOnEnd = currentDate.isEqual(rate.getEndDate()) || currentDate.isBefore(rate.getEndDate());
-
+                boolean isAfterOrOnStart = !currentDate.isBefore(rate.getStartDate());
+                boolean isBeforeOrOnEnd = !currentDate.isAfter(rate.getEndDate());
+                
                 if (isAfterOrOnStart && isBeforeOrOnEnd) {
-                    // We found a matching season! Let's calculate the exact price.
-                    BigDecimal discountPct = rate.getDiscountPct();
-                    
-                    // Priority 1: If they set a % discount
-                    if (discountPct != null && discountPct.compareTo(BigDecimal.ZERO) > 0) {
-                        BigDecimal discountMultiplier = discountPct.divide(new BigDecimal("100"));
-                        BigDecimal discountAmount = basePrice.multiply(discountMultiplier);
-                        priceForTonight = basePrice.subtract(discountAmount);
-                    } 
-                    // Priority 2: If they set a flat price override
-                    else if (rate.getPricePerNight() != null && rate.getPricePerNight().compareTo(BigDecimal.ZERO) > 0) {
+                    // We found a matching season - use seasonal price
+                    if (rate.getPricePerNight() != null && rate.getPricePerNight().compareTo(BigDecimal.ZERO) > 0) {
                         priceForTonight = rate.getPricePerNight();
                     }
                     
@@ -259,15 +250,54 @@ public class ReservationService {
                     break; 
                 }
             }
-
+            
             // Add tonight's final price to the grand total
             grandTotal = grandTotal.add(priceForTonight);
             
             // Move to the next night
             currentDate = currentDate.plusDays(1);
         }
-
+        
         // Return safely rounded to 2 decimal places
         return grandTotal.setScale(2, RoundingMode.HALF_UP);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

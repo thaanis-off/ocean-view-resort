@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @WebServlet("/reservation")
@@ -142,6 +143,8 @@ public class ReservationServlet extends HttpServlet {
         try {
             Reservation reservation = buildReservationFromRequest(request);
             
+            validateReservationDates(reservation);  
+            
             BigDecimal calculatedTotal = reservationService.calculateReservationTotal(
                     reservation.getRoomId(),
                     reservation.getCheckInDate(),
@@ -160,6 +163,29 @@ public class ReservationServlet extends HttpServlet {
         }
     }
 
+    private void validateReservationDates(Reservation reservation) throws IllegalArgumentException {
+        LocalDate today = LocalDate.now();
+        LocalDate checkIn = reservation.getCheckInDate();
+        LocalDate checkOut = reservation.getCheckOutDate();
+        
+        if (checkIn.isBefore(today)) {
+            throw new IllegalArgumentException("Check-in date cannot be in the past. Please select today or a future date.");
+        }
+        
+        if (checkOut.isBefore(today)) {
+            throw new IllegalArgumentException("Check-out date cannot be in the past. Please select today or a future date.");
+        }
+        
+        if (checkOut.isBefore(checkIn) || checkOut.isEqual(checkIn)) {
+            throw new IllegalArgumentException("Check-out date must be at least 1 day after check-in date.");
+        }
+        
+        long daysBetween = ChronoUnit.DAYS.between(checkIn, checkOut);
+        if (daysBetween > 30) {
+            throw new IllegalArgumentException("Maximum reservation duration is 30 nights.");
+        }
+    }
+    
     private void updateReservation(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, ServletException, IOException {
         Reservation reservation = buildReservationFromRequest(request);
