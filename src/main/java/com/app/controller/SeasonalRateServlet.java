@@ -1,9 +1,11 @@
 package com.app.controller;
+import java.time.temporal.ChronoUnit;
 
 import com.app.model.Room;
 import com.app.model.RoomType;
 import com.app.model.SeasonalRate;
 import com.app.service.SeasonalRateService;
+import com.app.dao.SeasonalRateDAO;
 import com.app.service.RoomService;
 import com.app.service.RoomTypeService;
 
@@ -128,27 +130,95 @@ public class SeasonalRateServlet extends HttpServlet {
     }
 
     private void saveRate(HttpServletRequest request, HttpServletResponse response, String action)
-            throws SQLException, IOException {
-        SeasonalRate rate = new SeasonalRate();
-        rate.setRoomTypeId(Integer.parseInt(request.getParameter("roomTypeId")));
-        rate.setSeasonName(request.getParameter("seasonName"));
-        rate.setStartDate(LocalDate.parse(request.getParameter("startDate")));
-        rate.setEndDate(LocalDate.parse(request.getParameter("endDate")));
-        rate.setPricePerNight(new BigDecimal(request.getParameter("pricePerNight")));
-        
-        String discount = request.getParameter("discountPct");
-        rate.setDiscountPct(discount != null && !discount.isEmpty() ? new BigDecimal(discount) : BigDecimal.ZERO);
-        rate.setActive(request.getParameter("isActive") != null);
-
-        if ("create".equals(action)) {
-            seasonalRateService.addRate(rate);
-            response.sendRedirect(request.getContextPath() + "/seasonalRates?action=list&success=added");
-        } else {
-            rate.setId(Integer.parseInt(request.getParameter("id")));
-            seasonalRateService.updateRate(rate);
-            response.sendRedirect(request.getContextPath() + "/seasonalRates?action=list&success=updated");
+            throws SQLException, IOException, ServletException  {
+        try {
+            SeasonalRate rate = new SeasonalRate();
+            
+            rate.setRoomTypeId(Integer.parseInt(request.getParameter("roomTypeId")));
+            rate.setSeasonName(request.getParameter("seasonName"));
+            rate.setStartDate(LocalDate.parse(request.getParameter("startDate")));
+            rate.setEndDate(LocalDate.parse(request.getParameter("endDate")));
+            rate.setPricePerNight(new BigDecimal(request.getParameter("pricePerNight")));
+            rate.setActive(request.getParameter("isActive") != null);
+            
+            if ("create".equals(action)) {
+                validateSeasonalRateDates(rate, false);
+                seasonalRateService.addRate(rate);
+                response.sendRedirect(request.getContextPath() + "/seasonalRates?action=list&success=added");
+            } else {
+                rate.setId(Integer.parseInt(request.getParameter("id")));
+                validateSeasonalRateDates(rate, true);
+                seasonalRateService.updateRate(rate);
+                response.sendRedirect(request.getContextPath() + "/seasonalRates?action=list&success=updated");
+            }
+            
+        } catch (IllegalArgumentException e) {
+            // Show error message on form
+            request.setAttribute("errorMessage", e.getMessage());
+            request.setAttribute("roomTypes", roomTypeService.getAllRoomTypes());
+            request.setAttribute("rate", buildRateFromRequest(request)); // Keep form data
+            request.getRequestDispatcher("/WEB-INF/views/app-views/seasonal-rate.jsp")
+                   .forward(request, response);
         }
     }
+
+    // Helper method to preserve form data
+    private SeasonalRate buildRateFromRequest(HttpServletRequest request) {
+        SeasonalRate rate = new SeasonalRate();
+        try {
+            if (request.getParameter("id") != null) {
+                rate.setId(Integer.parseInt(request.getParameter("id")));
+            }
+            rate.setRoomTypeId(Integer.parseInt(request.getParameter("roomTypeId")));
+            rate.setSeasonName(request.getParameter("seasonName"));
+            rate.setStartDate(LocalDate.parse(request.getParameter("startDate")));
+            rate.setEndDate(LocalDate.parse(request.getParameter("endDate")));
+            rate.setPricePerNight(new BigDecimal(request.getParameter("pricePerNight")));
+            rate.setActive(request.getParameter("isActive") != null);
+        } catch (Exception e) {
+            // Ignore parsing errors
+        }
+        return rate;
+    }
+
+    
+    private void validateSeasonalRateDates(SeasonalRate rate, boolean isUpdate) throws IllegalArgumentException, SQLException {
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = rate.getStartDate();
+        LocalDate endDate = rate.getEndDate();
+        
+        // Basic date validations
+        if (startDate.isBefore(today)) {
+            throw new IllegalArgumentException("Start date cannot be in the past.");
+        }
+        
+        if (endDate.isBefore(today)) {
+            throw new IllegalArgumentException("End date cannot be in the past.");
+        }
+        
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("End date must be on or after start date.");
+        }
+        
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+        if (daysBetween > 365) {
+            throw new IllegalArgumentException("Seasonal rate cannot exceed 365 days.");
+        }
+        
+        // CHECK FOR OVERLAPPING RATES - ADD THIS
+        Integer excludeId = isUpdate ? rate.getId() : null;
+        // Call DAO method
+        if (seasonalRateService.hasOverlappingRates(rate.getRoomTypeId(), 
+    			rate.getStartDate(), 
+                rate.getEndDate(), 
+                excludeId)) {
+			throw new IllegalArgumentException(
+			"This date range overlaps with an existing active seasonal rate."
+			);
+		}
+
+    }
+
     
  // ─── SEARCH Seasonal Rates ──────────────────────────────────────────────
     private void searchRates(HttpServletRequest request, HttpServletResponse response)

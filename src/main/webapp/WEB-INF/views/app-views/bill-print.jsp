@@ -376,6 +376,9 @@
 </head>
 <body>
 
+<c:if test="${empty sessionScope.loggedInStaff}">
+    <c:redirect url="/login?status=sessionExpired"/>
+</c:if>
     <!-- PRINT BUTTON -->
     <button onclick="window.print()" class="print-button no-print">🖨️ Print Invoice</button>
 

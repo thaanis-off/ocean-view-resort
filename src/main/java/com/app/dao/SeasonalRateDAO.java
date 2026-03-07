@@ -7,6 +7,8 @@ import com.app.util.DBConnection;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
+import java.sql.Date;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class SeasonalRateDAO {
     // ─── INSERT ──────────────────────────────────────────────────────────────
     public boolean addRate(SeasonalRate rate) throws SQLException {
         String sql = "INSERT INTO seasonal_rates (room_type_id, season_name, start_date, " +
-                     "end_date, price_per_night, discount_pct, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                     "end_date, price_per_night, is_active) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -25,13 +27,40 @@ public class SeasonalRateDAO {
             ps.setDate(3, Date.valueOf(rate.getStartDate()));
             ps.setDate(4, Date.valueOf(rate.getEndDate()));
             ps.setBigDecimal(5, rate.getPricePerNight());
-            ps.setBigDecimal(6, rate.getDiscountPct() != null ? rate.getDiscountPct() : BigDecimal.ZERO);
-            ps.setBoolean(7, rate.isActive());
+            ps.setBoolean(6, rate.isActive());
 
             return ps.executeUpdate() > 0;
         }
     }
 
+    public boolean hasOverlappingRates(int roomTypeId, LocalDate startDate, LocalDate endDate, Integer excludeRateId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM seasonal_rates " +
+                    "WHERE room_type_id = ? " +
+                    "  AND is_active = 1 " +
+                    "  AND start_date <= ? " +
+                    "  AND end_date >= ? " +
+                    (excludeRateId != null ? "  AND id != ?" : "");
+        
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, roomTypeId);
+            ps.setDate(2, Date.valueOf(endDate));
+            ps.setDate(3, Date.valueOf(startDate));
+            
+            if (excludeRateId != null) {
+                ps.setInt(4, excludeRateId);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count") > 0;
+                }
+            }
+        }
+        return false;
+    }
+    
     // ─── SELECT BY ID ────────────────────────────────────────────────────────
     public SeasonalRate getRateById(int id) throws SQLException {
         String sql = "SELECT sr.*, rt.type_name as room_type_name " +
@@ -69,7 +98,7 @@ public class SeasonalRateDAO {
     // ─── UPDATE ──────────────────────────────────────────────────────────────
     public boolean updateRate(SeasonalRate rate) throws SQLException {
         String sql = "UPDATE seasonal_rates SET room_type_id=?, season_name=?, start_date=?, " +
-                     "end_date=?, price_per_night=?, discount_pct=?, is_active=? WHERE id=?";
+                     "end_date=?, price_per_night=?, is_active=? WHERE id=?";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -79,9 +108,8 @@ public class SeasonalRateDAO {
             ps.setDate(3, Date.valueOf(rate.getStartDate()));
             ps.setDate(4, Date.valueOf(rate.getEndDate()));
             ps.setBigDecimal(5, rate.getPricePerNight());
-            ps.setBigDecimal(6, rate.getDiscountPct());
-            ps.setBoolean(7, rate.isActive());
-            ps.setInt(8, rate.getId());
+            ps.setBoolean(6, rate.isActive());
+            ps.setInt(7, rate.getId());
 
             return ps.executeUpdate() > 0;
         }
@@ -112,7 +140,7 @@ public class SeasonalRateDAO {
             ResultSet rs = ps.executeQuery();
             
             while (rs.next()) {
-                list.add(mapRow(rs)); // Uses your existing mapRow helper
+                list.add(mapRow(rs)); 
             }
         }
         return list;
@@ -161,7 +189,6 @@ public class SeasonalRateDAO {
         sr.setEndDate(endDate != null ? endDate.toLocalDate() : null);
         
         sr.setPricePerNight(rs.getBigDecimal("price_per_night"));
-        sr.setDiscountPct(rs.getBigDecimal("discount_pct"));
         sr.setActive(rs.getBoolean("is_active"));
         
         Timestamp created = rs.getTimestamp("created_at");

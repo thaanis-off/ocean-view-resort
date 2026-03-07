@@ -29,6 +29,18 @@
     <c:if test="${empty sessionScope.loggedInStaff}">
         <c:redirect url="/login?status=sessionExpired"/>
     </c:if>
+    
+    <c:if test="${not empty errorMessage}">
+    <div class="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-start space-x-3">
+        <svg class="w-5 h-5 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+            <p class="text-sm text-red-300 font-medium">Validation Error</p>
+            <p class="text-xs text-red-400/80 mt-1">${errorMessage}</p>
+        </div>
+    </div>
+</c:if>
 
     <div class="flex h-screen overflow-hidden">
         
@@ -103,18 +115,36 @@
                             <div>
                                 <h3 class="text-lg font-semibold text-white border-b border-gray-800 pb-3 mb-6">Stay Dates</h3>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-400 mb-2">Check-In Date <span class="text-red-500">*</span></label>
-                                        <input type="date" name="checkInDate" value="${reservation != null ? reservation.checkInDate : param.checkInDate}" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors [color-scheme:dark]">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-400 mb-2">Check-Out Date <span class="text-red-500">*</span></label>
-                                        <input type="date" name="checkOutDate" value="${reservation != null ? reservation.checkOutDate : param.checkOutDate}" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors [color-scheme:dark]">
-                                    </div>
-                                </div>
+                               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							    <div>
+							        <label class="block text-sm font-medium text-gray-400 mb-2">
+							            Check-In Date <span class="text-red-500">*</span>
+							        </label>
+							        <input type="date" 
+							               name="checkInDate" 
+							               id="checkInDate"
+							               value="${reservation != null ? reservation.checkInDate : param.checkInDate}" 
+							               required
+							               min="${currentDate}"
+							               onchange="validateCheckInDate()"
+							               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors [color-scheme:dark]">
+							        <p id="checkInError" class="text-red-400 text-xs mt-1 hidden"></p>
+							    </div>
+							    <div>
+							        <label class="block text-sm font-medium text-gray-400 mb-2">
+							            Check-Out Date <span class="text-red-500">*</span>
+							        </label>
+							        <input type="date" 
+							               name="checkOutDate" 
+							               id="checkOutDate"
+							               value="${reservation != null ? reservation.checkOutDate : param.checkOutDate}" 
+							               required
+							               min="${currentDate}"
+							               onchange="validateCheckOutDate()"
+							               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors [color-scheme:dark]">
+							        <p id="checkOutError" class="text-red-400 text-xs mt-1 hidden"></p>
+							    </div>
+							</div>
                             </div>
 
                             <div>
@@ -207,6 +237,94 @@
     </div>
 
     <script>
+    
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    
+    document.getElementById('checkInDate').min = todayString;
+    document.getElementById('checkOutDate').min = todayString;
+
+    function validateCheckInDate() {
+        const checkInInput = document.getElementById('checkInDate');
+        const checkOutInput = document.getElementById('checkOutDate');
+        const checkInError = document.getElementById('checkInError');
+        
+        const checkInDate = new Date(checkInInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        checkInError.classList.add('hidden');
+        checkInInput.classList.remove('border-red-500');
+        
+        if (checkInDate < today) {
+            checkInError.textContent = 'Check-in date cannot be in the past';
+            checkInError.classList.remove('hidden');
+            checkInInput.classList.add('border-red-500');
+            checkInInput.value = '';
+            return false;
+        }
+        
+        if (checkInInput.value) {
+            const nextDay = new Date(checkInDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkOutInput.min = nextDay.toISOString().split('T')[0];
+            
+            if (checkOutInput.value) {
+                validateCheckOutDate();
+            }
+        }
+        
+        return true;
+    }
+
+    function validateCheckOutDate() {
+        const checkInInput = document.getElementById('checkInDate');
+        const checkOutInput = document.getElementById('checkOutDate');
+        const checkOutError = document.getElementById('checkOutError');
+        
+        const checkInDate = new Date(checkInInput.value);
+        const checkOutDate = new Date(checkOutInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        checkOutError.classList.add('hidden');
+        checkOutInput.classList.remove('border-red-500');
+        
+        if (checkOutDate < today) {
+            checkOutError.textContent = 'Check-out date cannot be in the past';
+            checkOutError.classList.remove('hidden');
+            checkOutInput.classList.add('border-red-500');
+            checkOutInput.value = '';
+            return false;
+        }
+        
+        if (checkInInput.value && checkOutDate <= checkInDate) {
+            checkOutError.textContent = 'Check-out date must be at least 1 day after check-in';
+            checkOutError.classList.remove('hidden');
+            checkOutInput.classList.add('border-red-500');
+            checkOutInput.value = '';
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Form submission validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validateCheckInDate() || !validateCheckOutDate()) {
+                    e.preventDefault();
+                    alert('Please fix the date validation errors');
+                    return false;
+                }
+            });
+        }
+    });
+
+    
+    
         // --- Custom iOS/Mac Style Toast Logic ---
         let toastTimeout;
         

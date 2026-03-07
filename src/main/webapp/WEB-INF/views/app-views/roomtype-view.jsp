@@ -33,6 +33,10 @@
 <body class="bg-gray-950 text-gray-100 relative">
 <div class="flex h-screen overflow-hidden">
 
+<c:if test="${empty sessionScope.loggedInStaff}">
+    <c:redirect url="/login?status=sessionExpired"/>
+</c:if>
+
     <!-- Sidebar -->
     <jsp:include page="/WEB-INF/includes/sidebar.jsp">
         <jsp:param name="activePage" value="roomtypes" />
