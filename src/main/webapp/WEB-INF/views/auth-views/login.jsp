@@ -143,55 +143,75 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="custom-toast" class="fixed bottom-6 right-6 z-50 transition-all duration-400 transform translate-y-8 opacity-0 pointer-events-none">
-        <div class="bg-gradient-to-br from-primary-600 to-gray-900 border border-primary-500/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-4 flex items-center justify-between gap-8 min-w-[360px] pointer-events-auto">
-            <div class="flex flex-col">
-                <span id="toast-title" class="text-white font-semibold text-[15px] tracking-wide">Event has been created</span>
-                <span id="toast-subtitle" class="text-primary-100 opacity-80 text-[13px] mt-0.5">Sunday, December 03, 2023 at 9:00 AM</span>
-            </div>
-            <button onclick="hideToast()" class="bg-white hover:bg-gray-100 text-primary-700 text-[14px] font-semibold px-4 py-1.5 rounded-lg transition-colors focus:outline-none shadow-sm">
-                Dismiss
-            </button>
-        </div>
-    </div>
+	<div id="custom-toast" class="fixed bottom-6 right-6 z-50 transition-all duration-400 transform translate-y-8 opacity-0 pointer-events-none">
+	    <div class="bg-gradient-to-br from-primary-600 to-gray-900 border border-primary-500/30 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-4 flex items-center justify-between gap-8 min-w-[360px] pointer-events-auto">
+	        <div class="flex flex-col">
+	            <span id="toast-title" class="text-white font-semibold text-[15px] tracking-wide">Event has been created</span>
+	            <span id="toast-subtitle" class="text-primary-100 opacity-80 text-[13px] mt-0.5">Sunday, December 03, 2023 at 9:00 AM</span>
+	        </div>
+	        <button onclick="hideToast()" class="bg-white hover:bg-gray-100 text-primary-700 text-[14px] font-semibold px-4 py-1.5 rounded-lg transition-colors focus:outline-none shadow-sm">
+	            Dismiss
+	        </button>
+	    </div>
+	</div>
 
     <script>
-        let toastTimeout;
+    let toastTimeout;
 
-        function showToast(title) {
-            const toast = document.getElementById('custom-toast');
-            document.getElementById('toast-title').textContent = title;
-
-            const now = new Date();
-            const formattedDate = new Intl.DateTimeFormat('en-US', {
-                weekday: 'long', month: 'long', day: '2-digit', year: 'numeric',
-                hour: 'numeric', minute: '2-digit', hour12: true
-            }).format(now).replace(' at ', ' at ');
-
-            document.getElementById('toast-subtitle').textContent = formattedDate;
-
-            toast.classList.remove('translate-y-8', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                hideToast();
-            }, 4500);
+    function showToast(title, isError = false) {
+        const toast = document.getElementById('custom-toast');
+        const toastDiv = toast.querySelector('div');
+        
+        // Change color based on error/success
+        if (isError) {
+            // RED for errors
+            toastDiv.classList.remove('from-primary-600', 'from-green-600', 'border-primary-500/30', 'border-green-500/30');
+            toastDiv.classList.add('from-red-600', 'border-red-500/30');
+            toastDiv.querySelector('button').classList.remove('text-primary-700', 'text-green-700');
+            toastDiv.querySelector('button').classList.add('text-red-700');
+            document.getElementById('toast-subtitle').classList.remove('text-primary-100', 'text-green-100');
+            document.getElementById('toast-subtitle').classList.add('text-red-100');
+        } else {
+            // GREEN for success
+            toastDiv.classList.remove('from-primary-600', 'from-red-600', 'border-primary-500/30', 'border-red-500/30');
+            toastDiv.classList.add('from-green-600', 'border-green-500/30');
+            toastDiv.querySelector('button').classList.remove('text-primary-700', 'text-red-700');
+            toastDiv.querySelector('button').classList.add('text-green-700');
+            document.getElementById('toast-subtitle').classList.remove('text-primary-100', 'text-red-100');
+            document.getElementById('toast-subtitle').classList.add('text-green-100');
         }
+        
+        document.getElementById('toast-title').textContent = title;
 
-        function hideToast() {
-            const toast = document.getElementById('custom-toast');
-            toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('translate-y-8', 'opacity-0');
-        }
+        const now = new Date();
+        const formattedDate = new Intl.DateTimeFormat('en-US', {
+            weekday: 'long', month: 'long', day: '2-digit', year: 'numeric',
+            hour: 'numeric', minute: '2-digit', hour12: true
+        }).format(now).replace(' at ', ' at ');
 
-        document.addEventListener("DOMContentLoaded", function() {
-            <c:if test="${param.status == 'loggedout'}">showToast("Logged out successfully");</c:if>
-            <c:if test="${param.status == 'sessionExpired'}">showToast("Your session has expired");</c:if>
-            <c:if test="${param.status == 'error'}">showToast("Invalid username or password");</c:if>
-            <c:if test="${param.status == 'registered'}">showToast("Registration successful!");</c:if>
-        });
-    </script>
+        document.getElementById('toast-subtitle').textContent = formattedDate;
 
+        toast.classList.remove('translate-y-8', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            hideToast();
+        }, 4500);
+    }
+
+    function hideToast() {
+        const toast = document.getElementById('custom-toast');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-8', 'opacity-0');
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        <c:if test="${param.status == 'loggedout'}">showToast("Logged out successfully", false);</c:if>
+        <c:if test="${param.status == 'sessionExpired'}">showToast("Your session has expired", true);</c:if>
+        <c:if test="${param.status == 'error'}">showToast("Invalid username or password", true);</c:if>
+        <c:if test="${param.status == 'registered'}">showToast("Registration successful!", false);</c:if>
+    });
+</script>
 </body>
 </html>

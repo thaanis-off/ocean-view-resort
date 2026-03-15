@@ -1,26 +1,32 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<c:if test="${empty sessionScope.loggedInStaff}">
+    <c:redirect url="/login?status=sessionExpired"/>
+</c:if>
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Invoice ${bill.reservationNumber} - Ocean View Resort</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         @media print {
             @page {
                 size: A4;
-                margin: 0;
+                margin: 15mm;
             }
             body {
                 margin: 0;
-                padding: 20mm;
+                padding: 0;
             }
             .no-print {
                 display: none !important;
-            }
-            .page-break {
-                page-break-after: always;
             }
         }
 
@@ -31,301 +37,74 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #ffffff;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #f5f5f5;
             color: #000;
-            line-height: 1.6;
-            padding: 40px;
+            line-height: 1.5;
+            padding: 20px;
         }
 
         .invoice-container {
-            max-width: 800px;
+            max-width: 210mm; /* A4 width */
             margin: 0 auto;
             background: white;
-            border: 2px solid #1B4F8A;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
-        /* HEADER */
+        /* HEADER - Compact */
         .invoice-header {
             background: linear-gradient(135deg, #1B4F8A 0%, #2c7dc7 100%);
             color: white;
-            padding: 30px;
+            padding: 20px 30px;
             position: relative;
-            overflow: hidden;
         }
 
-        .invoice-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
         }
 
-        .company-info {
-            position: relative;
-            z-index: 1;
+        .company-info h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
         }
 
-        .company-name {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-
-        .company-details {
-            font-size: 13px;
+        .company-info p {
+            font-size: 11px;
             opacity: 0.95;
-            line-height: 1.8;
+            line-height: 1.6;
         }
 
         .invoice-title {
-            position: absolute;
-            top: 30px;
-            right: 30px;
             text-align: right;
-            z-index: 1;
         }
 
         .invoice-title h2 {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .invoice-title .invoice-number {
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.9;
         }
 
-        /* INFO SECTION */
-        .invoice-info {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .info-block h3 {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #666;
-            font-weight: 600;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-            border-bottom: 2px solid #1B4F8A;
-            padding-bottom: 5px;
-        }
-
-        .info-block p {
-            margin: 5px 0;
-            font-size: 13px;
-            color: #333;
-        }
-
-        .info-block .strong {
-            font-weight: 600;
-            color: #000;
-            font-size: 14px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-        }
-
-        .info-row .label {
-            color: #666;
-            font-size: 12px;
-        }
-
-        .info-row .value {
-            font-weight: 600;
-            color: #000;
-            font-size: 13px;
-        }
-
-        /* CHARGES TABLE */
-        .charges-section {
-            padding: 30px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #1B4F8A;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #1B4F8A;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        thead {
-            background: #f5f5f5;
-        }
-
-        thead th {
-            padding: 12px 10px;
-            text-align: left;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #666;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #ddd;
-        }
-
-        thead th.text-center {
-            text-align: center;
-        }
-
-        thead th.text-right {
-            text-align: right;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        tbody td {
-            padding: 12px 10px;
-            font-size: 13px;
-            color: #333;
-        }
-
-        tbody td.text-center {
-            text-align: center;
-        }
-
-        tbody td.text-right {
-            text-align: right;
-        }
-
-        tbody td.font-semibold {
-            font-weight: 600;
-            color: #000;
-        }
-
-        .category-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            background: #e8f4fd;
-            color: #1B4F8A;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        /* TOTALS */
-        .totals-section {
-            padding: 0 30px 30px;
-        }
-
-        .totals-table {
-            margin-left: auto;
-            width: 350px;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            font-size: 14px;
-        }
-
-        .total-row.subtotal {
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-        }
-
-        .total-row.tax {
-            color: #666;
-        }
-
-        .total-row.grand-total {
-            border-top: 2px solid #1B4F8A;
-            border-bottom: 2px solid #1B4F8A;
-            padding: 15px 0;
-            font-size: 18px;
-            font-weight: bold;
-            color: #1B4F8A;
-        }
-
-        .total-row.paid {
-            color: #27ae60;
-            font-weight: 600;
-        }
-
-        .total-row.balance {
-            border-top: 2px solid #e74c3c;
-            padding-top: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-
-        .total-row.balance.paid-full {
-            color: #27ae60;
-        }
-
-        /* PAYMENT HISTORY */
-        .payment-section {
-            padding: 0 30px 30px;
-        }
-
-        .payment-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            background: #e3f2fd;
-            color: #1976d2;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        /* FOOTER */
-        .invoice-footer {
-            padding: 25px 30px;
-            background: #f9f9f9;
-            border-top: 2px solid #e0e0e0;
-            text-align: center;
-        }
-
-        .footer-note {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .footer-legal {
-            font-size: 10px;
-            color: #999;
-            font-style: italic;
-        }
-
-        /* STATUS BADGE */
+        /* STATUS BADGE - Compact */
         .status-badge {
             position: absolute;
-            top: 80px;
-            right: 30px;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .status-paid {
@@ -346,69 +125,304 @@
             border: 2px solid #e74c3c;
         }
 
-        /* PRINT BUTTON */
-        .print-button {
+        /* INFO SECTION - Compact */
+        .invoice-info {
+            padding: 20px 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-block h3 {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #1B4F8A;
+            padding-bottom: 4px;
+        }
+
+        .info-block p {
+            margin: 3px 0;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .info-block .strong {
+            font-weight: 600;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+        }
+
+        .info-row .label {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #000;
+            font-size: 12px;
+        }
+
+        /* TABLES - Compact */
+        .charges-section {
+            padding: 20px 30px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1B4F8A;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #1B4F8A;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        thead th {
+            padding: 8px;
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        thead th.text-center {
+            text-align: center;
+        }
+
+        thead th.text-right {
+            text-align: right;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody td {
+            padding: 8px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        tbody td.text-center {
+            text-align: center;
+        }
+
+        tbody td.text-right {
+            text-align: right;
+        }
+
+        tbody td.font-semibold {
+            font-weight: 600;
+            color: #000;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e8f4fd;
+            color: #1B4F8A;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* TOTALS - Compact */
+        .totals-section {
+            padding: 0 30px 20px;
+        }
+
+        .totals-table {
+            margin-left: auto;
+            width: 350px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .total-row.subtotal {
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .total-row.tax {
+            color: #666;
+        }
+
+        .total-row.grand-total {
+            border-top: 2px solid #1B4F8A;
+            border-bottom: 2px solid #1B4F8A;
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1B4F8A;
+        }
+
+        .total-row.paid {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .total-row.balance {
+            border-top: 2px solid #e74c3c;
+            padding-top: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .total-row.balance.paid-full {
+            color: #27ae60;
+        }
+
+        /* PAYMENT SECTION - Compact */
+        .payment-section {
+            padding: 0 30px 20px;
+        }
+
+        .payment-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* FOOTER - Compact */
+        .invoice-footer {
+            padding: 15px 30px;
+            background: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .footer-note {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .footer-legal {
+            font-size: 9px;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* PRINT BUTTONS */
+        .action-buttons {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 12px 30px;
-            background: #1B4F8A;
-            color: white;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 10px 20px;
             border: none;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .print-button:hover {
+        .btn-print {
+            background: #1B4F8A;
+            color: white;
+        }
+
+        .btn-print:hover {
             background: #163d6e;
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
-        .print-button:active {
-            transform: translateY(0);
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
 
-<c:if test="${empty sessionScope.loggedInStaff}">
-    <c:redirect url="/login?status=sessionExpired"/>
-</c:if>
-    <!-- PRINT BUTTON -->
-    <button onclick="window.print()" class="print-button no-print">🖨️ Print Invoice</button>
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons no-print">
+        <button onclick="history.back()" class="btn btn-back">
+            ← Back
+        </button>
+        <button onclick="window.print()" class="btn btn-print">
+            🖨️ Print
+        </button>
+    </div>
 
     <div class="invoice-container">
         
         <!-- HEADER -->
         <div class="invoice-header">
-            <div class="company-info">
-                <div class="company-name">OCEAN VIEW RESORT</div>
-                <div class="company-details">
-                    123 Beach Road, Negombo<br>
-                    Western Province, Sri Lanka<br>
-                    Tel: +94 31 222 3456 | Email: info@oceanviewresort.lk
-                </div>
-            </div>
-            <div class="invoice-title">
-                <h2>INVOICE</h2>
-                <div class="invoice-number">#${bill.reservationNumber}</div>
-            </div>
             <c:choose>
-                <c:when test="${bill.status == 'Paid'}">
+                <c:when test="${bill.balanceDue <= 0}">
                     <div class="status-badge status-paid">✓ PAID</div>
                 </c:when>
-                <c:when test="${bill.status == 'Partial'}">
+                <c:when test="${bill.paidAmount > 0 && bill.balanceDue > 0}">
                     <div class="status-badge status-partial">⚠ PARTIAL</div>
                 </c:when>
                 <c:otherwise>
                     <div class="status-badge status-unpaid">● UNPAID</div>
                 </c:otherwise>
             </c:choose>
+            
+            <div class="header-content">
+                <div class="company-info">
+                    <h1>OCEAN VIEW RESORT</h1>
+                    <p>
+                        123 Beach Road, Galle, Sri Lanka<br>
+                        Tel: +94 91 222 3456 | info@oceanviewresort.lk
+                    </p>
+                </div>
+                <div class="invoice-title">
+                    <h2>INVOICE</h2>
+                    <div class="invoice-number">#${bill.reservationNumber}</div>
+                </div>
+            </div>
         </div>
 
         <!-- INFO SECTION -->
@@ -418,9 +432,6 @@
                 <p class="strong">${bill.guestName}</p>
                 <p>${bill.guestEmail}</p>
                 <p>${bill.guestPhone}</p>
-                <c:if test="${not empty bill.guestAddress}">
-                    <p style="margin-top: 8px;">${bill.guestAddress}</p>
-                </c:if>
             </div>
 
             <div class="info-block">
@@ -476,7 +487,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Service Description</th>
+                            <th>Service</th>
                             <th class="text-center">Category</th>
                             <th class="text-center">Date</th>
                             <th class="text-right">Amount (LKR)</th>
@@ -506,19 +517,19 @@
                     <span>LKR <fmt:formatNumber value="${bill.subtotal}" pattern="#,##0.00"/></span>
                 </div>
                 <div class="total-row tax">
-                    <span>Tax (${bill.taxRate}% VAT):</span>
+                    <span>Tax (10% VAT):</span>
                     <span>LKR <fmt:formatNumber value="${bill.taxAmount}" pattern="#,##0.00"/></span>
                 </div>
                 <div class="total-row grand-total">
-                    <span>TOTAL AMOUNT:</span>
+                    <span>TOTAL:</span>
                     <span>LKR <fmt:formatNumber value="${bill.totalAmount}" pattern="#,##0.00"/></span>
                 </div>
                 <div class="total-row paid">
-                    <span>Amount Paid:</span>
+                    <span>Paid:</span>
                     <span>LKR <fmt:formatNumber value="${bill.paidAmount}" pattern="#,##0.00"/></span>
                 </div>
                 <div class="total-row balance ${bill.balanceDue <= 0 ? 'paid-full' : ''}">
-                    <span>BALANCE DUE:</span>
+                    <span>BALANCE:</span>
                     <span>LKR <fmt:formatNumber value="${bill.balanceDue}" pattern="#,##0.00"/></span>
                 </div>
             </div>
@@ -532,9 +543,8 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Payment Method</th>
+                            <th>Method</th>
                             <th class="text-center">Type</th>
-                            <th>Reference</th>
                             <th class="text-right">Amount (LKR)</th>
                         </tr>
                     </thead>
@@ -546,7 +556,6 @@
                                 <td class="text-center">
                                     <span class="payment-badge">${payment.paymentType}</span>
                                 </td>
-                                <td>${payment.referenceNumber != null ? payment.referenceNumber : '—'}</td>
                                 <td class="text-right font-semibold"><fmt:formatNumber value="${payment.amount}" pattern="#,##0.00"/></td>
                             </tr>
                         </c:forEach>
@@ -558,21 +567,14 @@
         <!-- FOOTER -->
         <div class="invoice-footer">
             <p class="footer-note">
-                <strong>Thank you for choosing Ocean View Resort!</strong><br>
-                We hope you enjoyed your stay with us.
+                <strong>Thank you for choosing Ocean View Resort!</strong>
             </p>
             <p class="footer-legal">
-                This is a computer-generated invoice and does not require a signature.<br>
-                For any queries, please contact us at +94 31 222 3456 or info@oceanviewresort.lk
+                Computer-generated invoice. For queries: +94 91 222 3456
             </p>
         </div>
 
     </div>
-
-    <script>
-        // Auto-print dialog on load (optional)
-        // window.onload = function() { window.print(); }
-    </script>
 
 </body>
 </html>
