@@ -79,7 +79,7 @@
                     </c:if>
 
                     <div class="bg-gray-900 border border-gray-800 rounded-xl shadow-lg p-8">
-                        <form action="${pageContext.request.contextPath}/guest" method="post" class="space-y-8">
+                        <form id="guestForm" action="${pageContext.request.contextPath}/guest" method="post" class="space-y-8" novalidate>
                             <input type="hidden" name="action" value="${guest != null ? 'update' : 'create'}">
                             <c:if test="${guest != null}">
                                 <input type="hidden" name="id" value="${guest.id}">
@@ -91,43 +91,86 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">First Name <span class="text-red-500">*</span></label>
-                                        <input type="text" name="firstName" value="${guest != null ? guest.firstName : param.firstName}" placeholder="e.g. James" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <input type="text" 
+                                               id="firstName"
+                                               name="firstName" 
+                                               value="${guest != null ? guest.firstName : param.firstName}" 
+                                               placeholder="e.g. James" 
+                                               required
+                                               minlength="2"
+                                               maxlength="50"
+                                               pattern="[A-Za-z\s]+"
+                                               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="firstName-error">First name must be 2-50 characters, letters only</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Last Name <span class="text-red-500">*</span></label>
-                                        <input type="text" name="lastName" value="${guest != null ? guest.lastName : param.lastName}" placeholder="e.g. Wilson" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <input type="text" 
+                                               id="lastName"
+                                               name="lastName" 
+                                               value="${guest != null ? guest.lastName : param.lastName}" 
+                                               placeholder="e.g. Wilson" 
+                                               required
+                                               minlength="2"
+                                               maxlength="50"
+                                               pattern="[A-Za-z\s]+"
+                                               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="lastName-error">Last name must be 2-50 characters, letters only</p>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Gender <span class="text-red-500">*</span></label>
-                                        <select name="gender" required class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors appearance-none">
+                                        <select name="gender" 
+                                                id="gender"
+                                                required 
+                                                class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors appearance-none">
                                             <option value="" class="bg-gray-900">-- Select --</option>
                                             <option value="Male" ${(guest != null && guest.gender == 'Male') || param.gender == 'Male' ? 'selected' : ''} class="bg-gray-900">Male</option>
                                             <option value="Female" ${(guest != null && guest.gender == 'Female') || param.gender == 'Female' ? 'selected' : ''} class="bg-gray-900">Female</option>
                                             <option value="Other" ${(guest != null && guest.gender == 'Other') || param.gender == 'Other' ? 'selected' : ''} class="bg-gray-900">Other</option>
                                         </select>
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="gender-error">Please select a gender</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Date of Birth</label>
-                                        <input type="date" name="dateOfBirth" value="${guest != null ? guest.dateOfBirth : param.dateOfBirth}"
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors [color-scheme:dark]">
+                                       <input type="date" 
+									       id="dateOfBirth"
+									       name="dateOfBirth" 
+									       value="${guest != null ? guest.dateOfBirth : param.dateOfBirth}"
+									       class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors [color-scheme:dark]">
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="dateOfBirth-error">Date of birth cannot be in the future</p>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">NIC / Passport Number</label>
-                                        <input type="text" name="nicPassport" value="${guest != null ? guest.nicPassport : param.nicPassport}" placeholder="e.g. 987654321V"
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <input type="text" 
+                                               id="nicPassport"
+                                               name="nicPassport" 
+                                               value="${guest != null ? guest.nicPassport : param.nicPassport}" 
+                                               placeholder="e.g. 987654321V or AB1234567"
+                                               minlength="8"
+                                               maxlength="15"
+                                               pattern="[A-Z0-9]{8,15}"
+                                               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors uppercase">
+                                        <p class="text-xs text-gray-500 mt-1">8-15 characters (NIC: 10-12 chars, Passport: 8-9 chars)</p>
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="nicPassport-error">NIC/Passport must be 8-15 alphanumeric characters</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Nationality</label>
-                                        <input type="text" name="nationality" value="${guest != null ? guest.nationality : param.nationality}" placeholder="e.g. Sri Lankan"
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <input type="text" 
+                                               id="nationality"
+                                               name="nationality" 
+                                               value="${guest != null ? guest.nationality : param.nationality}" 
+                                               placeholder="e.g. Sri Lankan"
+                                               minlength="3"
+                                               maxlength="50"
+                                               pattern="[A-Za-z\s]+"
+                                               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="nationality-error">Nationality must be 3-50 characters, letters only</p>
                                     </div>
                                 </div>
                             </div>
@@ -138,20 +181,44 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Email Address <span class="text-red-500">*</span></label>
-                                        <input type="email" name="email" value="${guest != null ? guest.email : param.email}" placeholder="e.g. james@email.com" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <input type="email" 
+                                               id="email"
+                                               name="email" 
+                                               value="${guest != null ? guest.email : param.email}" 
+                                               placeholder="e.g. james@email.com" 
+                                               required
+                                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="email-error">Please enter a valid email address</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Phone Number <span class="text-red-500">*</span></label>
-                                        <input type="tel" name="phone" value="${guest != null ? guest.phone : param.phone}" placeholder="e.g. +94771234567" required
-                                            class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <input type="tel" 
+                                               id="phone"
+                                               name="phone" 
+                                               value="${guest != null ? guest.phone : param.phone}" 
+                                               placeholder="e.g. 0771234567 or +94771234567" 
+                                               required
+                                               pattern="^(\+94|0)?[1-9][0-9]{8}$"
+                                               minlength="10"
+                                               maxlength="13"
+                                               class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors">
+                                        <p class="text-xs text-gray-500 mt-1">10 digits (0771234567) or with +94 (13 digits)</p>
+                                        <p class="text-xs text-red-400 mt-1 hidden" id="phone-error">Phone must be 10 digits (0771234567) or +94 format</p>
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-400 mb-2">Address <span class="text-red-500">*</span></label>
-                                    <textarea name="address" placeholder="Full mailing address" rows="3" required
-                                        class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors resize-y">${guest != null ? guest.address : param.address}</textarea>
+                                    <textarea name="address" 
+                                              id="address"
+                                              placeholder="Full mailing address" 
+                                              rows="3" 
+                                              required
+                                              minlength="10"
+                                              maxlength="500"
+                                              class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors resize-y">${guest != null ? guest.address : param.address}</textarea>
+                                    <p class="text-xs text-red-400 mt-1 hidden" id="address-error">Address must be 10-500 characters</p>
                                 </div>
                             </div>
 
@@ -161,7 +228,10 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-400 mb-2">Guest Type <span class="text-red-500">*</span></label>
-                                        <select name="guestType" required class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors appearance-none">
+                                        <select name="guestType" 
+                                                id="guestType"
+                                                required 
+                                                class="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none transition-colors appearance-none">
                                             <option value="Regular" ${(guest != null && guest.guestType == 'Regular') || param.guestType == 'Regular' ? 'selected' : ''} class="bg-gray-900">Regular</option>
                                             <option value="VIP" ${(guest != null && guest.guestType == 'VIP') || param.guestType == 'VIP' ? 'selected' : ''} class="bg-gray-900">VIP</option>
                                             <option value="Corporate" ${(guest != null && guest.guestType == 'Corporate') || param.guestType == 'Corporate' ? 'selected' : ''} class="bg-gray-900">Corporate</option>
@@ -212,5 +282,99 @@
             </main>
         </div>
     </div>
+
+    <script>
+        // Form validation
+        const form = document.getElementById('guestForm');
+        
+        // Real-time validation for all fields
+        const fields = ['firstName', 'lastName', 'gender', 'dateOfBirth', 'nicPassport', 'nationality', 'email', 'phone', 'address'];
+        
+        fields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            const errorMsg = document.getElementById(fieldName + '-error');
+            
+            if (field && errorMsg) {
+                field.addEventListener('blur', () => validateField(field, errorMsg));
+                field.addEventListener('input', () => {
+                    if (errorMsg.classList.contains('hidden') === false) {
+                        validateField(field, errorMsg);
+                    }
+                });
+            }
+        });
+        
+        function validateField(field, errorMsg) {
+            if (field.validity.valid) {
+                field.classList.remove('border-red-500');
+                field.classList.add('border-gray-700');
+                errorMsg.classList.add('hidden');
+                return true;
+            } else {
+                field.classList.remove('border-gray-700');
+                field.classList.add('border-red-500');
+                errorMsg.classList.remove('hidden');
+                return false;
+            }
+        }
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            fields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                const errorMsg = document.getElementById(fieldName + '-error');
+                
+                if (field && errorMsg && field.hasAttribute('required')) {
+                    if (!validateField(field, errorMsg)) {
+                        isValid = false;
+                    }
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Scroll to first error
+                const firstError = document.querySelector('.border-red-500');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+        
+        // Auto-uppercase NIC/Passport
+        const nicField = document.getElementById('nicPassport');
+        if (nicField) {
+            nicField.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+        
+     // Date of Birth validation - must be in the past (not today or future)
+        const dobField = document.getElementById('dateOfBirth');
+        if (dobField) {
+            // Set max date to yesterday
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const maxDate = yesterday.toISOString().split('T')[0];
+            dobField.setAttribute('max', maxDate);
+            
+            // Additional validation on change
+            dobField.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+                
+                if (selectedDate >= todayDate) {
+                    this.value = '';
+                    alert('Date of birth must be in the past. Today or future dates are not allowed.');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
